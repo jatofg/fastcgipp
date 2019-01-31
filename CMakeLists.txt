@@ -15,9 +15,7 @@ set(SRC_FILES
     "src/webstreambuf.cpp"
     "src/request.cpp"
     "src/manager.cpp"
-    "src/address.cpp"
-    "src/mailer.cpp"
-    "src/email.cpp")
+    "src/address.cpp")
 set(TESTS
     "protocol"
     "http"
@@ -29,7 +27,6 @@ set(EXAMPLES
     "echo"
     "gnu"
     "sessions"
-    "email"
     "timer")
 
 # Set up our log level for fastcgi++/log.hpp
@@ -85,16 +82,6 @@ endif()
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/config.hpp.in"
     "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp" @ONLY)
-
-# Are we worrying about SQL?
-option(SQL "Set to ON to build and install the SQL components" OFF)
-if(SQL)
-    find_package(PostgreSQL REQUIRED)
-    list(APPEND SRC_FILES "src/parameters.cpp")
-    list(APPEND SRC_FILES "src/results.cpp")
-    list(APPEND SRC_FILES "src/connection.cpp")
-    list(APPEND EXAMPLES "sql")
-endif(SQL)
 
 # Build the library itself
 option(BUILD_STATIC_LIBS "Set to ON to build and install only the static library" OFF)
@@ -156,16 +143,7 @@ install(FILES
 
 install(DIRECTORY
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/fastcgi++"
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    PATTERN "sql" EXCLUDE)
-
-if(SQL)
-    target_link_libraries(fastcgipp PUBLIC ${PostgreSQL_LIBRARIES})
-    target_include_directories(fastcgipp PRIVATE ${PostgreSQL_INCLUDE_DIRS})
-    install(DIRECTORY
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/fastcgi++/sql"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/fastcgi++")
-endif(SQL)
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Install the config header file
 install(FILES
@@ -180,16 +158,6 @@ foreach(UNITTEST IN LISTS TESTS)
     add_test("${UNITTEST}" ${UNITTEST}_test)
     list(APPEND TEST_TARGET ${UNITTEST}_test)
 endforeach()
-if(SQL)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/sql.sh.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/sql_test.sh" @ONLY)
-    add_executable(sql_test EXCLUDE_FROM_ALL tests/sql.cpp)
-    target_link_libraries(sql_test PRIVATE Fastcgipp::fastcgipp)
-    add_test("sql" sql_test.sh)
-    list(APPEND TEST_TARGET sql_test)
-    target_include_directories(sql_test PRIVATE ${PostgreSQL_INCLUDE_DIRS})
-endif(SQL)
 add_custom_target(tests DEPENDS ${TEST_TARGET})
 
 # Examples
