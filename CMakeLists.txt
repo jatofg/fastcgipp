@@ -26,7 +26,6 @@ set(EXAMPLES
     "helloworld"
     "echo"
     "gnu"
-    "sessions"
     "timer")
 
 # Set up our log level for fastcgi++/log.hpp
