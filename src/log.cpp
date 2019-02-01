@@ -72,9 +72,9 @@ namespace Fastcgipp
             try
             {
                 ss << converter.from_bytes(
-                        program_invocation_name,
-                        program_invocation_name
-                            +std::strlen(program_invocation_name));
+                        program_invocation_short_name,
+                        program_invocation_short_name
+                            +std::strlen(program_invocation_short_name));
             }
             catch(const std::range_error& e)
             {
@@ -88,12 +88,12 @@ namespace Fastcgipp
 
         std::array<std::wstring, 6> levels
         {{
-            L"[info]: ",
-            L"[fail]: ",
-            L"[error]: ",
-            L"[warning]: ",
-            L"[debug]: ",
-            L"[diagnostic]: "
+            L"[info] ",
+            L"[fail] ",
+            L"[error] ",
+            L"[warning] ",
+            L"[debug] ",
+            L"[diagnostic] "
         }};
     }
 }
@@ -109,5 +109,5 @@ void Fastcgipp::Logging::header(Level level)
     const std::time_t now = std::time(nullptr);
     *logstream
         << std::put_time(std::localtime(&now), L"%b %d %H:%M:%S ")
-        << hostname << ' ' << program << ' ' << levels[level];
+        << hostname << ' ' << program << ": [fastcgi] " << levels[level];
 }
