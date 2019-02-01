@@ -655,33 +655,6 @@ void Fastcgipp::Http::Environment<charT>::parsePostsUrlEncoded()
 template struct Fastcgipp::Http::Environment<char>;
 template struct Fastcgipp::Http::Environment<wchar_t>;
 
-Fastcgipp::Http::SessionId::SessionId()
-{
-    std::random_device device;
-    std::uniform_int_distribution<unsigned short> distribution(0, 255);
-
-    for(unsigned char& byte: m_data)
-        byte = static_cast<unsigned char>(distribution(device));
-    m_timestamp = std::time(nullptr);
-}
-
-template Fastcgipp::Http::SessionId::SessionId(
-        const std::basic_string<char>& string);
-template Fastcgipp::Http::SessionId::SessionId(
-        const std::basic_string<wchar_t>& string);
-template<class charT> Fastcgipp::Http::SessionId::SessionId(
-        const std::basic_string<charT>& string)
-{
-    base64Decode(
-            string.begin(),
-            string.begin()+std::min(stringLength, string.size()),
-            m_data.begin());
-    m_timestamp = std::time(nullptr);
-}
-
-const size_t Fastcgipp::Http::SessionId::stringLength;
-const size_t Fastcgipp::Http::SessionId::size;
-
 template void Fastcgipp::Http::decodeUrlEncoded<char>(
         const char* data,
         const char* const dataEnd,
