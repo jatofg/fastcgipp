@@ -100,8 +100,8 @@ set_target_properties(fastcgipp PROPERTIES VERSION ${PROJECT_VERSION}
 find_package(Threads REQUIRED)
 target_link_libraries(fastcgipp PUBLIC Threads::Threads)
 if(UNIX)
-    if(CXX_COMPILER_ID MATCHES "GNU" OR CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_options(fastcgipp PRIVATE -Wall -Werror -Wold-style-cast -fno-omit-frame-pointer)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(fastcgipp PRIVATE -Wall -Werror -fno-omit-frame-pointer)
     endif()
 endif(UNIX)
 
