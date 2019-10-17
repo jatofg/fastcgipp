@@ -1,7 +1,7 @@
 /*!
  * @file       log.cpp
  * @brief      Defines the Fastcgipp debugging/logging facilities
- * @author     Eddie Carle &lt;eddie@isatec.ca&gt;
+ * @author     Eddie Carle &lt;eddie@isatec.ca&gt;, modified by Tobias Flaig &lt;dev@tobias-flaig.de&gt;
  * @date       May 18, 2016
  * @copyright  Copyright &copy; 2016 Eddie Carle. This project is released under
  *             the GNU Lesser General Public License Version 3.
