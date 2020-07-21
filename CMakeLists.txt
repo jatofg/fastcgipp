@@ -3,7 +3,7 @@ project(fastcgi++ VERSION 3.1 LANGUAGES CXX)
 
 string(TIMESTAMP BUILD_TIME UTC)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # All our starting point lists
 set(SRC_FILES

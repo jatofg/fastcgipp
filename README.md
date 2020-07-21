@@ -8,13 +8,15 @@
 
 This branch contains a reduced and slightly modified version of eddic/fastcgipp. 
 All SQL, email, and session features have been removed, and compatibility has 
-been improved (e.g., this variant will compile on Debian Jessie).
+been improved (e.g., this variant will compile on Debian Jessie). In addition,
+it contains slight modifications for use in [NAWA](https://github.com/jatofg/nawa).
+Please note that C++17 is required for this variant.
 
 If you just need the FastCGI functionality, this version will provide it 
 without unnecessary bloat. The following description is taken from the 
-upstream project:
+upstream project (and modified accordingly):
 
-This library is intended as a high-efficiency C++14 api for web development. It
+This library is intended as a high-efficiency C++17 api for web development. It
 allows your applications to communicate with web servers through the FastCGI
 protocol, tabulates all your environment data, manages character encoding, and
 allows requests to effectively share CPU time. If you want any further

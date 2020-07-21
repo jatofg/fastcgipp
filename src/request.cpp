@@ -221,7 +221,8 @@ template<class charT> void Fastcgipp::Request<charT>::configure(
         const Protocol::Role& role,
         bool kill,
         const std::function<void(const Socket&, Block&&, bool)> send,
-        const std::function<void(Message)> callback)
+        const std::function<void(Message)> callback,
+        std::any externalObject)
 {
     using namespace std::placeholders;
 
@@ -230,6 +231,7 @@ template<class charT> void Fastcgipp::Request<charT>::configure(
     m_role=role;
     m_callback=callback;
     m_send=send;
+    m_externalObject = std::move(externalObject);
 
     m_outStreamBuffer.configure(
             id,

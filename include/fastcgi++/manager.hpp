@@ -37,6 +37,7 @@
 #include <shared_mutex>
 #include <memory>
 #include <functional>
+#include <any>
 
 #include "fastcgi++/protocol.hpp"
 #include "fastcgi++/transceiver.hpp"
@@ -67,7 +68,7 @@ namespace Fastcgipp
         /*!
          * @param[in] threads Number of threads to use for request handling
          */
-        Manager_base(unsigned threads);
+        Manager_base(unsigned threads, std::any externalObject = std::any());
 
         ~Manager_base();
 
@@ -203,6 +204,9 @@ namespace Fastcgipp
         //! Handles low level communication with the other side
         Transceiver m_transceiver;
 
+        //! An external object from outside which will be passed to the requests.
+        std::any m_externalObject;
+
     private:
         //! Queue for pending tasks
         std::queue<Protocol::RequestId> m_tasks;
@@ -326,7 +330,8 @@ namespace Fastcgipp
                     role,
                     kill,
                     std::bind(&Transceiver::send, &m_transceiver, _1, _2, _3),
-                    std::bind(&Manager_base::push, this, id, _1));
+                    std::bind(&Manager_base::push, this, id, _1),
+                    m_externalObject);
             return request;
         }
 

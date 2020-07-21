@@ -37,6 +37,7 @@
 #include <functional>
 #include <queue>
 #include <mutex>
+#include <any>
 
 //! Topmost namespace for the fastcgi++ library
 namespace Fastcgipp
@@ -142,7 +143,8 @@ namespace Fastcgipp
                 bool kill,
                 const std::function<void(const Socket&, Block&&, bool)>
                     send,
-                const std::function<void(Message)> callback);
+                const std::function<void(Message)> callback,
+                std::any externalObject = std::any());
 
         std::unique_lock<std::mutex> handler();
 
@@ -330,6 +332,9 @@ namespace Fastcgipp
 
         //! Set the output stream's locale
         void setLocale(const std::string& locale);
+
+        //! A user-defined external object available in every request
+        std::any m_externalObject;
 
     private:
         //! The callback function for dealings outside the fastcgi++ library

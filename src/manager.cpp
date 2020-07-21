@@ -31,15 +31,16 @@
 
 Fastcgipp::Manager_base* Fastcgipp::Manager_base::instance=nullptr;
 
-Fastcgipp::Manager_base::Manager_base(unsigned threads):
-    m_transceiver(std::bind(
+Fastcgipp::Manager_base::Manager_base(unsigned threads, std::any externalObject):
+        m_transceiver(std::bind(
                 &Fastcgipp::Manager_base::push,
                 this,
                 std::placeholders::_1,
                 std::placeholders::_2)),
-    m_terminate(true),
-    m_stop(true),
-    m_threads(threads)
+        m_externalObject(std::move(externalObject)),
+        m_terminate(true),
+        m_stop(true),
+        m_threads(threads)
 #if FASTCGIPP_LOG_LEVEL > 3
     ,m_requestCount(0),
     m_maxRequests(0),
