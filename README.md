@@ -63,7 +63,7 @@ Now let's build the library itself.
 
 Then we can build the documentation if we so desire.
 
-    make doc
+    make fcgidoc
 
 Now let's install it all (doc included if it was built).
 
@@ -71,7 +71,7 @@ Now let's install it all (doc included if it was built).
 
 Maybe we should build the unit tests?
 
-    make tests
+    make fcgitests
 
 And of course we should run them as well.
 
@@ -79,4 +79,4 @@ And of course we should run them as well.
 
 And hey, let's build the examples too!
 
-    make examples
+    make fcgiexamples

@@ -86,23 +86,23 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp" @ONLY)
 
 # Build the library itself
-option(BUILD_STATIC_LIBS "Set to ON to build and install only the static library" OFF)
-if(BUILD_STATIC_LIBS)
-    add_library(fastcgipp STATIC ${SRC_FILES})
-else(BUILD_STATIC_LIBS)
-    add_library(fastcgipp SHARED ${SRC_FILES})
-endif(BUILD_STATIC_LIBS)
+add_library(fcgistatic STATIC ${SRC_FILES})
+add_library(fastcgipp SHARED ${SRC_FILES})
 
 add_library(Fastcgipp::fastcgipp ALIAS fastcgipp)
 
 set_target_properties(fastcgipp PROPERTIES VERSION ${PROJECT_VERSION}
                                            SOVERSION ${PROJECT_VERSION_MAJOR})
+set_target_properties(fcgistatic PROPERTIES VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR})
 
 find_package(Threads REQUIRED)
 target_link_libraries(fastcgipp PUBLIC Threads::Threads)
+target_link_libraries(fcgistatic PUBLIC Threads::Threads)
 if(UNIX)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(fastcgipp PRIVATE -Wall -Werror -fno-omit-frame-pointer)
+        target_compile_options(fcgistatic PRIVATE -Wall -Werror -fno-omit-frame-pointer)
     endif()
 endif(UNIX)
 
@@ -111,6 +111,10 @@ target_include_directories(fastcgipp PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(fcgistatic PUBLIC
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/fastcgi++)
 
@@ -154,12 +158,12 @@ install(FILES
 # All the test stuff
 enable_testing()
 foreach(UNITTEST IN LISTS TESTS)
-    add_executable(${UNITTEST}_test EXCLUDE_FROM_ALL tests/${UNITTEST}.cpp)
-    target_link_libraries(${UNITTEST}_test PRIVATE Fastcgipp::fastcgipp)
-    add_test("${UNITTEST}" ${UNITTEST}_test)
-    list(APPEND TEST_TARGET ${UNITTEST}_test)
+    add_executable(${UNITTEST}_fcgitest EXCLUDE_FROM_ALL tests/${UNITTEST}.cpp)
+    target_link_libraries(${UNITTEST}_fcgitest PRIVATE Fastcgipp::fastcgipp)
+    add_test("${UNITTEST}" ${UNITTEST}_fcgitest)
+    list(APPEND TEST_TARGET ${UNITTEST}_fcgitest)
 endforeach()
-add_custom_target(tests DEPENDS ${TEST_TARGET})
+add_custom_target(fcgitests DEPENDS ${TEST_TARGET})
 
 # Examples
 foreach(EXAMPLE IN LISTS EXAMPLES)
@@ -167,7 +171,7 @@ foreach(EXAMPLE IN LISTS EXAMPLES)
     target_link_libraries(${EXAMPLE}.fcgi PRIVATE Fastcgipp::fastcgipp)
     list(APPEND EXAMPLE_TARGETS ${EXAMPLE}.fcgi)
 endforeach()
-add_custom_target(examples DEPENDS ${EXAMPLE_TARGETS})
+add_custom_target(fcgiexamples DEPENDS ${EXAMPLE_TARGETS})
 
 # And finally the documentation
 find_package(Doxygen)
@@ -176,7 +180,7 @@ if(DOXYGEN_FOUND)
         "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in"
         "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
     add_custom_target(
-        doc
+        fcgidoc
         "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
