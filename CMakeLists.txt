@@ -86,106 +86,123 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp" @ONLY)
 
 # Build the library itself
-add_library(fcgistatic STATIC ${SRC_FILES})
-add_library(fastcgipp SHARED ${SRC_FILES})
+add_library(fastcgilite STATIC ${SRC_FILES})
 
-add_library(Fastcgipp::fastcgipp ALIAS fastcgipp)
-
-set_target_properties(fastcgipp PROPERTIES VERSION ${PROJECT_VERSION}
-                                           SOVERSION ${PROJECT_VERSION_MAJOR})
-set_target_properties(fcgistatic PROPERTIES VERSION ${PROJECT_VERSION}
+set_target_properties(fastcgilite PROPERTIES VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR})
 
+option(FCGILITE_ENABLE_SHARED "Enable building as a shared library" OFF)
+
+if(FCGILITE_ENABLE_SHARED)
+    add_library(fastcgipp SHARED ${SRC_FILES})
+
+    add_library(Fastcgipp::fastcgipp ALIAS fastcgipp)
+
+    set_target_properties(fastcgipp PROPERTIES VERSION ${PROJECT_VERSION}
+            SOVERSION ${PROJECT_VERSION_MAJOR})
+endif()
+
 find_package(Threads REQUIRED)
-target_link_libraries(fastcgipp PUBLIC Threads::Threads)
-target_link_libraries(fcgistatic PUBLIC Threads::Threads)
+target_link_libraries(fastcgilite PUBLIC Threads::Threads)
+if(FCGILITE_ENABLE_SHARED)
+    target_link_libraries(fastcgipp PUBLIC Threads::Threads)
+endif()
 if(UNIX)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_options(fastcgipp PRIVATE -Wall -Werror -fno-omit-frame-pointer)
-        target_compile_options(fcgistatic PRIVATE -Wall -Werror -fno-omit-frame-pointer)
+        target_compile_options(fastcgilite PRIVATE -Wall -Werror -fno-omit-frame-pointer)
+        if(FCGILITE_ENABLE_SHARED)
+            target_compile_options(fastcgipp PRIVATE -Wall -Werror -fno-omit-frame-pointer)
+        endif()
     endif()
 endif(UNIX)
 
 include(GNUInstallDirs)
-target_include_directories(fastcgipp PUBLIC
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(fcgistatic PUBLIC
+target_include_directories(fastcgilite PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+if(FCGILITE_ENABLE_SHARED)
+    target_include_directories(fastcgipp PUBLIC
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+endif()
 
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/fastcgi++)
 
-install(TARGETS fastcgipp
-    EXPORT FastcgippTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(FCGILITE_ENABLE_SHARED)
+    install(TARGETS fastcgipp
+            EXPORT FastcgippTargets
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-install(EXPORT FastcgippTargets
-    FILE FastcgippTargets.cmake
-    NAMESPACE Fastcgipp::
-    DESTINATION ${INSTALL_CONFIGDIR})
+    install(EXPORT FastcgippTargets
+            FILE FastcgippTargets.cmake
+            NAMESPACE Fastcgipp::
+            DESTINATION ${INSTALL_CONFIGDIR})
 
-GNUInstallDirs_get_absolute_install_dir(FASTCGIPP_INCLUDE_DIR CMAKE_INSTALL_INCLUDEDIR)
+    GNUInstallDirs_get_absolute_install_dir(FASTCGIPP_INCLUDE_DIR CMAKE_INSTALL_INCLUDEDIR)
 
-#Create a ConfigVersion.cmake file
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfigVersion.cmake
-    COMPATIBILITY SameMajorVersion)
+    #Create a ConfigVersion.cmake file
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+            ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfigVersion.cmake
+            COMPATIBILITY SameMajorVersion)
 
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/FastcgippConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfig.cmake
-    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
-    PATH_VARS FASTCGIPP_INCLUDE_DIR)
+    configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/FastcgippConfig.cmake.in
+            ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfig.cmake
+            INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+            PATH_VARS FASTCGIPP_INCLUDE_DIR)
 
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfig.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfigVersion.cmake
-    DESTINATION ${INSTALL_CONFIGDIR})
+    install(FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfig.cmake
+            ${CMAKE_CURRENT_BINARY_DIR}/FastcgippConfigVersion.cmake
+            DESTINATION ${INSTALL_CONFIGDIR})
 
-install(DIRECTORY
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/fastcgi++"
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(DIRECTORY
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/fastcgi++"
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-# Install the config header file
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp"
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fastcgi++)
+    # Install the config header file
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp"
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fastcgi++)
+endif()
 
 # All the test stuff
-enable_testing()
-foreach(UNITTEST IN LISTS TESTS)
-    add_executable(${UNITTEST}_fcgitest EXCLUDE_FROM_ALL tests/${UNITTEST}.cpp)
-    target_link_libraries(${UNITTEST}_fcgitest PRIVATE Fastcgipp::fastcgipp)
-    add_test("${UNITTEST}" ${UNITTEST}_fcgitest)
-    list(APPEND TEST_TARGET ${UNITTEST}_fcgitest)
-endforeach()
-add_custom_target(fcgitests DEPENDS ${TEST_TARGET})
+option(FCGILITE_ADDITIONAL_TARGETS "Enable targets for examples, tests, and docs" OFF)
+if(FCGILITE_ADDITIONAL_TARGETS)
+    enable_testing()
+    foreach(UNITTEST IN LISTS TESTS)
+        add_executable(${UNITTEST}_fcgitest EXCLUDE_FROM_ALL tests/${UNITTEST}.cpp)
+        target_link_libraries(${UNITTEST}_fcgitest PRIVATE Fastcgipp::fastcgipp)
+        add_test("${UNITTEST}" ${UNITTEST}_fcgitest)
+        list(APPEND TEST_TARGET ${UNITTEST}_fcgitest)
+    endforeach()
+    add_custom_target(fcgitests DEPENDS ${TEST_TARGET})
 
-# Examples
-foreach(EXAMPLE IN LISTS EXAMPLES)
-    add_executable(${EXAMPLE}.fcgi EXCLUDE_FROM_ALL examples/${EXAMPLE}.cpp)
-    target_link_libraries(${EXAMPLE}.fcgi PRIVATE Fastcgipp::fastcgipp)
-    list(APPEND EXAMPLE_TARGETS ${EXAMPLE}.fcgi)
-endforeach()
-add_custom_target(fcgiexamples DEPENDS ${EXAMPLE_TARGETS})
+    # Examples
+    foreach(EXAMPLE IN LISTS EXAMPLES)
+        add_executable(${EXAMPLE}.fcgi EXCLUDE_FROM_ALL examples/${EXAMPLE}.cpp)
+        target_link_libraries(${EXAMPLE}.fcgi PRIVATE Fastcgipp::fastcgipp)
+        list(APPEND EXAMPLE_TARGETS ${EXAMPLE}.fcgi)
+    endforeach()
+    add_custom_target(fcgiexamples DEPENDS ${EXAMPLE_TARGETS})
 
-# And finally the documentation
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
-    add_custom_target(
-        fcgidoc
-        "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMENT "Generating API documentation with Doxygen" VERBATIM)
-    install(
-        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc/"
-        DESTINATION ${CMAKE_INSTALL_DOCDIR}
-        OPTIONAL)
-endif(DOXYGEN_FOUND)
+    # And finally the documentation
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        configure_file(
+                "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
+        add_custom_target(
+                fcgidoc
+                "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+                COMMENT "Generating API documentation with Doxygen" VERBATIM)
+        install(
+                DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc/"
+                DESTINATION ${CMAKE_INSTALL_DOCDIR}
+                OPTIONAL)
+    endif(DOXYGEN_FOUND)
+endif()

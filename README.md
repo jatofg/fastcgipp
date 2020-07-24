@@ -42,8 +42,8 @@ First we need to clone.
 
 Then we make a build directory.
 
-    mkdir fastcgi++.build
-    cd fastcgi++.build
+    mkdir build
+    cd build
 
 Now we need run cmake.
 
@@ -62,6 +62,12 @@ Or if you want some really hardcore debug and diagnostics info
 Now let's build the library itself.
 
     make
+
+**Please note that by default, this project only builds a static library. 
+To build the shared library, pass `-DFCGILITE_ENABLE_SHARED` to cmake.**
+
+**For building tests, examples, and docs, it is necessary to pass the
+`-DFCGILITE_ADDITIONAL_TARGETS` argument to cmake.**
 
 Then we can build the documentation if we so desire.
 
