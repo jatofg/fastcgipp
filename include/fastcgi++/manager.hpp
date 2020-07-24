@@ -311,8 +311,8 @@ namespace Fastcgipp
         /*!
          * @param[in] threads Number of threads to use for request handling
          */
-        Manager(unsigned threads = std::thread::hardware_concurrency()):
-            Manager_base(threads)
+        Manager(unsigned threads = std::thread::hardware_concurrency(), const std::any& externalObject = std::any()):
+            Manager_base(threads, externalObject)
         {}
 
     private:
