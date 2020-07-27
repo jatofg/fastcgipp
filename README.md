@@ -64,10 +64,10 @@ Now let's build the library itself.
     make
 
 **Please note that by default, this project only builds a static library. 
-To build the shared library, pass `-DFCGILITE_ENABLE_SHARED` to cmake.**
+To build the shared library, pass `-DFCGILITE_ENABLE_SHARED=ON` to cmake.**
 
 **For building tests, examples, and docs, it is necessary to pass the
-`-DFCGILITE_ADDITIONAL_TARGETS` argument to cmake.**
+`-DFCGILITE_ADDITIONAL_TARGETS=ON` argument to cmake.**
 
 Then we can build the documentation if we so desire.
 
