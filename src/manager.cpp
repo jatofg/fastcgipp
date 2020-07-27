@@ -31,13 +31,14 @@
 
 Fastcgipp::Manager_base* Fastcgipp::Manager_base::instance=nullptr;
 
-Fastcgipp::Manager_base::Manager_base(unsigned threads, std::any externalObject):
+Fastcgipp::Manager_base::Manager_base(unsigned threads, std::optional<size_t> maxPostSize, std::any externalObject):
         m_transceiver(std::bind(
                 &Fastcgipp::Manager_base::push,
                 this,
                 std::placeholders::_1,
                 std::placeholders::_2)),
         m_externalObject(std::move(externalObject)),
+        m_maxPostSize(std::move(maxPostSize)),
         m_terminate(true),
         m_stop(true),
         m_threads(threads)

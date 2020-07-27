@@ -144,6 +144,7 @@ namespace Fastcgipp
                 const std::function<void(const Socket&, Block&&, bool)>
                     send,
                 const std::function<void(Message)> callback,
+                std::optional<size_t> maxPostSize,
                 std::any externalObject = std::any());
 
         std::unique_lock<std::mutex> handler();
@@ -356,7 +357,7 @@ namespace Fastcgipp
         Http::Environment<charT> m_environment;
 
         //! The maximum amount of post data, in bytes, that can be recieved
-        const size_t m_maxPostSize;
+        size_t m_maxPostSize;
 
         //! The role that the other side expects this request to play
         Protocol::Role m_role;

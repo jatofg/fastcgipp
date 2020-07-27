@@ -222,6 +222,7 @@ template<class charT> void Fastcgipp::Request<charT>::configure(
         bool kill,
         const std::function<void(const Socket&, Block&&, bool)> send,
         const std::function<void(Message)> callback,
+        std::optional<size_t> maxPostSize,
         std::any externalObject)
 {
     using namespace std::placeholders;
@@ -232,6 +233,10 @@ template<class charT> void Fastcgipp::Request<charT>::configure(
     m_callback=callback;
     m_send=send;
     m_externalObject = std::move(externalObject);
+
+    if(maxPostSize.has_value()) {
+        m_maxPostSize = *maxPostSize;
+    }
 
     m_outStreamBuffer.configure(
             id,

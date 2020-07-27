@@ -38,6 +38,7 @@
 #include <memory>
 #include <functional>
 #include <any>
+#include <optional>
 
 #include "fastcgi++/protocol.hpp"
 #include "fastcgi++/transceiver.hpp"
@@ -68,7 +69,8 @@ namespace Fastcgipp
         /*!
          * @param[in] threads Number of threads to use for request handling
          */
-        Manager_base(unsigned threads, std::any externalObject = std::any());
+        Manager_base(unsigned threads, std::optional<size_t> maxPostSize = std::nullopt,
+                     std::any externalObject = std::any());
 
         ~Manager_base();
 
@@ -207,6 +209,9 @@ namespace Fastcgipp
         //! An external object from outside which will be passed to the requests.
         std::any m_externalObject;
 
+        //! A fixed maxPostSize to pass to the requests (overrides the one given in the Request constructor)
+        std::optional<size_t> m_maxPostSize;
+
     private:
         //! Queue for pending tasks
         std::queue<Protocol::RequestId> m_tasks;
@@ -311,9 +316,9 @@ namespace Fastcgipp
         /*!
          * @param[in] threads Number of threads to use for request handling
          */
-        Manager(unsigned threads = std::thread::hardware_concurrency(), const std::any& externalObject = std::any()):
-            Manager_base(threads, externalObject)
-        {}
+        Manager(unsigned threads = std::thread::hardware_concurrency(),
+                const std::optional<size_t> &maxPostSize = std::nullopt, const std::any &externalObject = std::any()) :
+                Manager_base(threads, maxPostSize, externalObject) {}
 
     private:
         //! Make a request object
