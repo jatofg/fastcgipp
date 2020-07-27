@@ -336,6 +336,7 @@ namespace Fastcgipp
                     kill,
                     std::bind(&Transceiver::send, &m_transceiver, _1, _2, _3),
                     std::bind(&Manager_base::push, this, id, _1),
+                    m_maxPostSize,
                     m_externalObject);
             return request;
         }
