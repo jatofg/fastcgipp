@@ -69,7 +69,7 @@ namespace Fastcgipp
             size_t size;
 
             //! File data
-            mutable std::unique_ptr<char[]> data;
+            mutable std::shared_ptr<char[]> data;
 
             //! Move constructor
             File(File&& x):
