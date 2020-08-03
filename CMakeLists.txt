@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.13)
 project(fastcgi++ VERSION 3.1 LANGUAGES CXX)
 
 string(TIMESTAMP BUILD_TIME UTC)
@@ -7,29 +7,29 @@ set(CMAKE_CXX_STANDARD 17)
 
 # All our starting point lists
 set(SRC_FILES
-    "src/log.cpp"
-    "src/block.cpp"
-    "src/http.cpp"
-    "src/protocol.cpp"
-    "src/poll.cpp"
-    "src/sockets.cpp"
-    "src/transceiver.cpp"
-    "src/fcgistreambuf.cpp"
-    "src/webstreambuf.cpp"
-    "src/request.cpp"
-    "src/manager.cpp"
-    "src/address.cpp")
+        "src/log.cpp"
+        "src/block.cpp"
+        "src/http.cpp"
+        "src/protocol.cpp"
+        "src/poll.cpp"
+        "src/sockets.cpp"
+        "src/transceiver.cpp"
+        "src/fcgistreambuf.cpp"
+        "src/webstreambuf.cpp"
+        "src/request.cpp"
+        "src/manager.cpp"
+        "src/address.cpp")
 set(TESTS
-    "protocol"
-    "http"
-    "sockets"
-    "transceiver"
-    "fcgistreambuf")
+        "protocol"
+        "http"
+        "sockets"
+        "transceiver"
+        "fcgistreambuf")
 set(EXAMPLES
-    "helloworld"
-    "echo"
-    "gnu"
-    "timer")
+        "helloworld"
+        "echo"
+        "gnu"
+        "timer")
 
 # Set up our log level for fastcgi++/log.hpp
 if(NOT LOG_LEVEL)
@@ -82,11 +82,12 @@ endif()
 
 # Our configuration
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/config.hpp.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp" @ONLY)
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/config.hpp.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/include/fastcgi++/config.hpp" @ONLY)
 
 # Build the library itself
 add_library(fastcgilite STATIC ${SRC_FILES})
+target_compile_options(fastcgilite PUBLIC -fPIC)
 
 set_target_properties(fastcgilite PROPERTIES VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR})
