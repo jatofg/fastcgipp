@@ -39,6 +39,7 @@
 #include <functional>
 #include <any>
 #include <optional>
+#include <condition_variable>
 
 #include "fastcgi++/protocol.hpp"
 #include "fastcgi++/transceiver.hpp"
