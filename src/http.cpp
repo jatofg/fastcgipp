@@ -177,70 +177,14 @@ template<class charT> void Fastcgipp::Http::Environment<charT>::fill(
             value,
             end))
     {
-        bool processed=true;
-
         switch(value-name)
         {
-        case 9:
-            if(std::equal(name, value, "HTTP_HOST"))
-                vecToString(value, end, host);
-            else if(std::equal(name, value, "PATH_INFO"))
-            {
-                const size_t bufferSize = end-value;
-                std::unique_ptr<char[]> buffer(new char[bufferSize]);
-                int size=-1;
-                for(
-                        auto source=value;
-                        source<=end;
-                        ++source, ++size)
-                {
-                    if(*source == '/' || source == end)
-                    {
-                        if(size > 0)
-                        {
-                            const auto bufferEnd = percentEscapedToRealBytes(
-                                    source-size,
-                                    source,
-                                    buffer.get());
-                            pathInfo.push_back(std::basic_string<charT>());
-                            vecToString(
-                                    buffer.get(),
-                                    bufferEnd,
-                                    pathInfo.back());
-                        }
-                        size=-1;
-                    }
-                }
-            }
-            else
-                processed=false;
-            break;
         case 11:
-            if(std::equal(name, value, "HTTP_ACCEPT"))
-                vecToString(value, end, acceptContentTypes);
-            else if(std::equal(name, value, "HTTP_COOKIE"))
+            if(std::equal(name, value, "HTTP_COOKIE"))
                 decodeUrlEncoded(value, end, cookies, "; ");
-            else if(std::equal(name, value, "SERVER_ADDR"))
-                serverAddress.assign(&*value, &*end);
-            else if(std::equal(name, value, "REMOTE_ADDR"))
-                remoteAddress.assign(&*value, &*end);
-            else if(std::equal(name, value, "SERVER_PORT"))
-                serverPort=atoi(&*value, &*end);
-            else if(std::equal(name, value, "REMOTE_PORT"))
-                remotePort=atoi(&*value, &*end);
-            else if(std::equal(name, value, "SCRIPT_NAME"))
-                vecToString(value, end, scriptName);
-            else if(std::equal(name, value, "REQUEST_URI"))
-                vecToString(value, end, requestUri);
-            else if(std::equal(name, value, "HTTP_ORIGIN"))
-                vecToString(value, end, origin);
-            else
-                processed=false;
             break;
         case 12:
-            if(std::equal(name, value, "HTTP_REFERER"))
-                vecToString(value, end, referer);
-            else if(std::equal(name, value, "CONTENT_TYPE"))
+            if(std::equal(name, value, "CONTENT_TYPE"))
             {
                 const auto semicolon = std::find(value, end, ';');
                 vecToString(
@@ -258,14 +202,6 @@ template<class charT> void Fastcgipp::Http::Environment<charT>::fill(
             }
             else if(std::equal(name, value, "QUERY_STRING"))
                 decodeUrlEncoded(value, end, gets);
-            else
-                processed=false;
-            break;
-        case 13:
-            if(std::equal(name, value, "DOCUMENT_ROOT"))
-                vecToString(value, end, root);
-            else
-                processed=false;
             break;
         case 14:
             if(std::equal(name, value, "REQUEST_METHOD"))
@@ -335,30 +271,6 @@ template<class charT> void Fastcgipp::Http::Environment<charT>::fill(
             }
             else if(std::equal(name, value, "CONTENT_LENGTH"))
                 contentLength=atoi(&*value, &*end);
-            else
-                processed=false;
-            break;
-        case 15:
-            if(std::equal(name, value, "HTTP_USER_AGENT"))
-                vecToString(value, end, userAgent);
-            else if(std::equal(name, value, "HTTP_KEEP_ALIVE"))
-                keepAlive=atoi(&*value, &*end);
-            else
-                processed=false;
-            break;
-        case 18:
-            if(std::equal(name, value, "HTTP_IF_NONE_MATCH"))
-                etag=atoi(&*value, &*end);
-            else if(std::equal(name, value, "HTTP_AUTHORIZATION"))
-                vecToString(value, end, authorization);
-            else
-                processed=false;
-            break;
-        case 19:
-            if(std::equal(name, value, "HTTP_ACCEPT_CHARSET"))
-                vecToString(value, end, acceptCharsets);
-            else
-                processed=false;
             break;
         case 20:
             if(std::equal(name, value, "HTTP_ACCEPT_LANGUAGE"))
@@ -391,39 +303,15 @@ template<class charT> void Fastcgipp::Http::Environment<charT>::fill(
                     groupStart = groupEnd+1;
                 }
             }
-            else
-                processed=false;
-            break;
-        case 22:
-            if(std::equal(name, value, "HTTP_IF_MODIFIED_SINCE"))
-            {
-                std::tm time;
-                std::fill(
-                        reinterpret_cast<char*>(&time),
-                        reinterpret_cast<char*>(&time)+sizeof(time),
-                        0);
-                std::stringstream dateStream;
-                dateStream.write(&*value, end-value);
-                dateStream >> std::get_time(
-                        &time,
-                        "%a, %d %b %Y %H:%M:%S GMT");
-                ifModifiedSince = std::mktime(&time) - timezone;
-            }
-            else
-                processed=false;
-            break;
-        default:
-            processed=false;
             break;
         }
-        if(!processed)
-        {
-            std::basic_string<charT> nameString;
-            std::basic_string<charT> valueString;
-            vecToString(name, value, nameString);
-            vecToString(value, end, valueString);
-            others[nameString] = valueString;
-        }
+
+        std::basic_string<charT> nameString;
+        std::basic_string<charT> valueString;
+        vecToString(name, value, nameString);
+        vecToString(value, end, valueString);
+        parameters[nameString] = valueString;
+
         data = end;
     }
 }

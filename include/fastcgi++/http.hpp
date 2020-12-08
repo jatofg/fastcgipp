@@ -120,76 +120,45 @@ namespace Fastcgipp
          */
         template<class charT> struct Environment
         {
-            //! Hostname of the server
-            std::basic_string<charT> host;
-
-            //! Origin server
-            std::basic_string<charT> origin;
-
-            //! User agent string
-            std::basic_string<charT> userAgent;
-
-            //! Content types the client accepts
-            std::basic_string<charT> acceptContentTypes;
-
-            //! Languages the client accepts
+            //! Languages the client accepts -- still needed (maybe also remove the method using it) (HTTP_ACCEPT_LANGUAGE)
             std::vector<std::string> acceptLanguages;
 
-            //! Character sets the clients accepts
-            std::basic_string<charT> acceptCharsets;
-	  
-            //! Http authorization string
-            std::basic_string<charT> authorization;
-	  
-            //! Referral URL
-            std::basic_string<charT> referer;
-
-            //! Content type of data sent from client
+            //! Content type of data sent from client -- still needed (CONTENT_TYPE)
             std::basic_string<charT> contentType;
 
-            //! HTTP root directory
-            std::basic_string<charT> root;
-
-            //! Filename of script relative to the HTTP root directory
-            std::basic_string<charT> scriptName;
-
-            //! REQUEST_METHOD
+            //! REQUEST_METHOD -- still needed
             RequestMethod requestMethod;
 
-            //! REQUEST_URI
-            std::basic_string<charT> requestUri;
-
-            //! Path information
-            std::vector<std::basic_string<charT>> pathInfo;
-
-            //! The etag the client assumes this document should have
-            unsigned etag;
-
-            //! How many seconds the connection should be kept alive
-            unsigned keepAlive;
-
-            //! Length of content to be received from the client (post data)
+            //! Length of content to be received from the client (post data) -- still needed (CONTENT_LENGTH)
             unsigned contentLength;
 
-            //! IP address of the server
-            Address serverAddress;
-
-            //! IP address of the client
-            Address remoteAddress;
-
-            //! TCP port used by the server
-            uint16_t serverPort;
-
-            //! TCP port used by the client
-            uint16_t remotePort;
-
-            //! Timestamp the client has for this document
-            std::time_t ifModifiedSince;
-
-            //! Container with all other enironment variables
+            //! Container with all FastCGI request parameters (containing environment information)
+            /*!
+             * This contains all parameters, including those already parsed. The following parameters were available
+             * in fastcgi++ as extra members and can now be accessed through this map using their original keys:
+             *
+             * - Hostname of the server: HTTP_HOST
+             * - Origin server: HTTP_ORIGIN
+             * - User agent string: HTTP_USER_AGENT
+             * - Content types the client accepts: HTTP_ACCEPT
+             * - Character sets the clients accepts: HTTP_ACCEPT_CHARSET
+             * - Http authorization string: HTTP_AUTHORIZATION
+             * - Referral URL: HTTP_REFERER
+             * - HTTP root directory: DOCUMENT_ROOT
+             * - Filename of script relative to the HTTP root directory: SCRIPT_NAME
+             * - Request URI: REQUEST_URI
+             * - Path information: PATH_INFO
+             * - The etag the client assumes this document should have: HTTP_IF_NONE_MATCH
+             * - How many seconds the connection should be kept alive: HTTP_KEEP_ALIVE
+             * - IP address of the server: SERVER_ADDR
+             * - IP address of the client: REMOTE_ADDR
+             * - TCP port used by the server: SERVER_PORT
+             * - TCP port used by the client: REMOTE_PORT
+             * - Timestamp the client has for this document: HTTP_IF_MODIFIED_SINCE
+             */
             std::map<
                 std::basic_string<charT>,
-                std::basic_string<charT>> others;
+                std::basic_string<charT>> parameters;
 
             //! Container with all url-encoded cookie data
             std::multimap<
@@ -262,12 +231,7 @@ namespace Fastcgipp
 
             Environment():
                 requestMethod(RequestMethod::ERROR),
-                etag(0),
-                keepAlive(0),
-                contentLength(0),
-                serverPort(0),
-                remotePort(0),
-                ifModifiedSince(0)
+                contentLength(0)
             {}
         private:
             //! Parses "multipart/form-data" http post data

@@ -537,39 +537,13 @@ int main()
 
                 // Check parameters
                 if(
-                        environment.host != L"localhost" ||
-                        environment.userAgent != L"Mozilla/5.0 (X11; Linux"
-                            " x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" ||
-                        environment.acceptContentTypes != L"text/html,"
-                            "application/xhtml+xml,application/xml;q=0.9,*/*;"
-                            "q=0.8" ||
                         environment.acceptLanguages != properLanguages ||
-                        environment.acceptCharsets != L"" ||
-                        environment.referer != L"http://localhost/examples/"
-                            "echo-form.html" ||
                         environment.contentType != L"multipart/form-data" ||
-                        environment.root != L"/var/www/localhost/htdocs" ||
-                        environment.scriptName != L"/examples/echo.fcgi" ||
                         environment.requestMethod !=
                             Fastcgipp::Http::RequestMethod::POST ||
-                        environment.contentLength != 59071 ||
-                        environment.requestUri != L"/examples/echo.fcgi/this/is"
-                            "/a/test%5C+path?getVar=testing&secondGetVar=tested"
-                            "&utf8GetVarTest=%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%"
-                            "80%D0%BA%D0%B0&enctype=multipart" ||
-                        environment.etag != 0 ||
-                        environment.keepAlive != 0 ||
-                        environment.serverAddress != loopback ||
-                        environment.remoteAddress != loopback ||
-                        environment.serverPort != 80 ||
-                        environment.remotePort != 49003)
+                        environment.contentLength != 59071)
                     FAIL_LOG("Fastcgipp::Http::Environment multipart "\
                             "parameters didn't decode properly")
-
-                // Checking pathInfo
-                if(properPath != environment.pathInfo)
-                    FAIL_LOG("Fastcgipp::Http::Environment multipart "\
-                            "pathInfo didn't decode properly")
 
                 // Checking gets
                 if(properGets != environment.gets)
@@ -655,39 +629,13 @@ int main()
 
                 // Checking parameters
                 if(
-                        environment.host != L"localhost" ||
-                        environment.userAgent != L"Mozilla/5.0 (X11; Linux"
-                            " x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" ||
-                        environment.acceptContentTypes != L"text/html,"
-                            "application/xhtml+xml,application/xml;q=0.9,*/*;"
-                            "q=0.8" ||
                         environment.acceptLanguages != properLanguages ||
-                        environment.acceptCharsets != L"" ||
-                        environment.referer != L"http://localhost/examples/"
-                            "echo-form.html" ||
                         environment.contentType != L"application/x-www-form-urlencoded" ||
-                        environment.root != L"/var/www/localhost/htdocs" ||
-                        environment.scriptName != L"/examples/echo.fcgi" ||
                         environment.requestMethod !=
                             Fastcgipp::Http::RequestMethod::POST ||
-                        environment.contentLength != 98 ||
-                        environment.requestUri != L"/examples/echo.fcgi/this/is"
-                            "/a/test%5C+path?getVar=testing&secondGetVar=tested"
-                            "&utf8GetVarTest=%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%"
-                            "80%D0%BA%D0%B0&enctype=url-encoded" ||
-                        environment.etag != 0 ||
-                        environment.keepAlive != 0 ||
-                        environment.serverAddress != loopback ||
-                        environment.remoteAddress != loopback ||
-                        environment.serverPort != 80 ||
-                        environment.remotePort != 49116)
+                        environment.contentLength != 98)
                     FAIL_LOG("Fastcgipp::Http::Environment urlencoded "\
                             "parameters didn't decode properly")
-
-                // Checking pathInfo
-                if(properPath != environment.pathInfo)
-                    FAIL_LOG("Fastcgipp::Http::Environment urlencoded "\
-                            "pathInfo didn't decode properly")
 
                 // Checking gets
                 if(properGets != environment.gets)
@@ -722,122 +670,6 @@ int main()
                             "posts didn't decode properly")
             }
         }
-    }
-
-    // Testing Fastcgipp::Http::SessionId
-    {
-        Fastcgipp::Http::SessionId session1;
-        std::ostringstream ss;
-        ss << session1;
-        Fastcgipp::Http::SessionId session2(ss.str());
-
-        if(!(session2 == session1))
-            FAIL_LOG("Fastcgipp::Http::SessionId")
-    }
-
-    // Testing Fastcgipp::Http::Sessions
-    {
-        char properExpiration[30];
-        std::time_t expiration;
-
-        std::random_device device;
-        std::uniform_int_distribution<unsigned short> alphanumeric(0, 61);
-
-        expiration = std::time(nullptr)+6;
-        Fastcgipp::Http::Sessions<std::wstring> sessions(3);
-        std::fill(
-                properExpiration,
-                properExpiration+sizeof(properExpiration),
-                0);
-        std::strftime(
-                properExpiration,
-                sizeof(properExpiration),
-                "%a, %d %b %Y %H:%M:%S GMT",
-                std::gmtime(&expiration));
-        if(!std::equal(
-                    properExpiration,
-                    properExpiration+sizeof(properExpiration),
-                    sessions.expiration()))
-            FAIL_LOG("Fastcgipp::Http::Sessions expiration string error 1")
-
-
-        std::wstringstream ss;
-        const Fastcgipp::Http::SessionId badId;
-
-        for(int i=0; i<100; ++i)
-        {
-            std::shared_ptr<std::wstring> data(new std::wstring);
-            for(int i=0; i<16; ++i)
-                data->push_back(
-                        Fastcgipp::Http::base64Characters[
-                            alphanumeric(device)]);
-
-            sessions.generate(data);
-        }
-        if(sessions.size() != 100)
-            FAIL_LOG("Fastcgipp::Http::Sessions error inserting");
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        sessions.get(badId);
-        if(sessions.size() != 100)
-            FAIL_LOG("Fastcgipp::Http::Sessions cleanup happened when it "\
-                    "shouldn't have");
-
-        if(!std::equal(
-                    properExpiration,
-                    properExpiration+sizeof(properExpiration),
-                    sessions.expiration()))
-            FAIL_LOG("Fastcgipp::Http::Sessions expiration string error 2")
-
-        for(int i=0; i<100; ++i)
-        {
-            std::shared_ptr<std::wstring> data(new std::wstring);
-            for(int i=0; i<16; ++i)
-                data->push_back(
-                        Fastcgipp::Http::base64Characters[
-                            alphanumeric(device)]);
-
-            auto id = sessions.generate(data);
-            ss << id << ' ' << *data << std::endl;
-        }
-        if(sessions.size() != 200)
-            FAIL_LOG("Fastcgipp::Http::Sessions error inserting more sessions");
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        expiration = std::time(nullptr)+6;
-        sessions.get(badId);
-        if(sessions.size() != 100)
-            FAIL_LOG("Fastcgipp::Http::Sessions cleanup didn't work");
-
-        std::fill(
-                properExpiration,
-                properExpiration+sizeof(properExpiration),
-                0);
-        std::strftime(
-                properExpiration,
-                sizeof(properExpiration),
-                "%a, %d %b %Y %H:%M:%S GMT",
-                std::gmtime(&expiration));
-        if(!std::equal(
-                    properExpiration,
-                    properExpiration+sizeof(properExpiration),
-                    sessions.expiration()))
-            FAIL_LOG("Fastcgipp::Http::Sessions expiration string error 3")
-
-        std::wstring sessionId;
-        for(int i=0; i<100; ++i)
-        {
-            std::wstring data;
-
-            ss >> sessionId >> data;
-
-            auto theData = sessions.get(sessionId);
-            if(!theData)
-                FAIL_LOG("Fastcgipp::Http::Sessions session(s) missing");
-            if(*theData != data)
-                FAIL_LOG("Fastcgipp::Http::Sessions session data non matching");
-        }
-        sessions.erase(sessionId);
-        if(sessions.size() != 99)
-            FAIL_LOG("Fastcgipp::Http::Sessions::erase() didn't work");
     }
 
     return 0;

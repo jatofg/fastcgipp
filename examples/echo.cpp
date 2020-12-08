@@ -45,14 +45,14 @@ L"<html>"
             L"<b>FastCGI Version:</b> "
                 << Fastcgipp::Protocol::version << L"<br />"
             L"<b>fastcgi++ Version:</b> " << Fastcgipp::version << L"<br />"
-            L"<b>Hostname:</b> " << Encoding::HTML << environment().host
+            L"<b>Hostname:</b> " << Encoding::HTML << environment().parameters.at(L"HTTP_HOST")
                 << Encoding::NONE << L"<br />"
-            L"<b>Origin Server:</b> " << Encoding::HTML << environment().origin
+            L"<b>Origin Server:</b> " << Encoding::HTML << environment().parameters.at(L"HTTP_ORIGIN")
                 << Encoding::NONE << L"<br />"
-            L"<b>User Agent:</b> " << Encoding::HTML << environment().userAgent
+            L"<b>User Agent:</b> " << Encoding::HTML << environment().parameters.at(L"HTTP_USER_AGENT")
                 << Encoding::NONE << L"<br />"
             L"<b>Accepted Content Types:</b> " << Encoding::HTML
-                << environment().acceptContentTypes << Encoding::NONE
+                << environment().parameters.at(L"HTTP_ACCEPT") << Encoding::NONE
                 << L"<br />"
             L"<b>Accepted Languages:</b> " << Encoding::HTML;
         if(!environment().acceptLanguages.empty())
@@ -69,62 +69,37 @@ L"<html>"
         }
         out << Encoding::NONE << L"<br />"
             L"<b>Accepted Characters Sets:</b> " << Encoding::HTML
-                << environment().acceptCharsets << Encoding::NONE << L"<br />"
-            L"<b>Referer:</b> " << Encoding::HTML << environment().referer
+                << environment().parameters.at(L"HTTP_ACCEPT_CHARSET") << Encoding::NONE << L"<br />"
+            L"<b>Referer:</b> " << Encoding::HTML << environment().parameters.at(L"HTTP_REFERER")
                 << Encoding::NONE << L"<br />"
             L"<b>Content Type:</b> " << Encoding::HTML
                 << environment().contentType << Encoding::NONE << L"<br />"
-            L"<b>Root:</b> " << Encoding::HTML << environment().root
+            L"<b>Root:</b> " << Encoding::HTML << environment().parameters.at(L"DOCUMENT_ROOT")
                 << Encoding::NONE << L"<br />"
             L"<b>Script Name:</b> " << Encoding::HTML
-                << environment().scriptName << Encoding::NONE << L"<br />"
+                << environment().parameters.at(L"SCRIPT_NAME") << Encoding::NONE << L"<br />"
             L"<b>Request URI:</b> " << Encoding::HTML
-                << environment().requestUri << Encoding::NONE << L"<br />"
+                << environment().parameters.at(L"REQUEST_URI") << Encoding::NONE << L"<br />"
             L"<b>Request Method:</b> " << environment().requestMethod
                 << L"<br />"
             L"<b>Content Length:</b> " << environment().contentLength
                 << L" bytes<br />"
-            L"<b>Keep Alive Time:</b> " << environment().keepAlive
+            L"<b>Keep Alive Time:</b> " << environment().parameters.at(L"HTTP_KEEP_ALIVE")
                 << L" seconds<br />"
-            L"<b>Server Address:</b> " << environment().serverAddress
+            L"<b>Server Address:</b> " << environment().parameters.at(L"SERVER_ADDR")
                 << L"<br />"
-            L"<b>Server Port:</b> " << environment().serverPort << L"<br />"
-            L"<b>Client Address:</b> " << environment().remoteAddress << L"<br />"
-            L"<b>Client Port:</b> " << environment().remotePort << L"<br />"
-            L"<b>Etag:</b> " << environment().etag << L"<br />"
-            L"<b>If Modified Since:</b> " << Encoding::HTML
-                << std::put_time(std::gmtime(&environment().ifModifiedSince),
-                        L"%a, %d %b %Y %H:%M:%S %Z") << Encoding::NONE <<
+            L"<b>Server Port:</b> " << environment().parameters.at(L"SERVER_PORT") << L"<br />"
+            L"<b>Client Address:</b> " << environment().parameters.at(L"REMOTE_ADDR") << L"<br />"
+            L"<b>Client Port:</b> " << environment().parameters.at(L"REMOTE_PORT") << L"<br />"
+            L"<b>Etag:</b> " << environment().parameters.at(L"HTTP_IF_MODIFIED_SINCE") << L"<br />"
         L"</p>";
         //! [Environment]
 
-        //! [Path Info]
-        out <<
-        L"<h2>Path Info</h2>";
-        if(environment().pathInfo.size())
-        {
-            out <<
-        L"<p>";
-            std::wstring preTab;
-            for(const auto& element: environment().pathInfo)
-            {
-                out << preTab << Encoding::HTML << element << Encoding::NONE
-                    << L"<br />";
-                preTab += L"&nbsp;&nbsp;&nbsp;&nbsp;";
-            }
-            out <<
-        L"</p>";
-        }
-        else
-            out <<
-        L"<p>No Path Info</p>";
-        //! [Path Info]
-
         //! [Other Environment]
         out <<
-        L"<h2>Other Environment Parameters</h2>";
-        if(!environment().others.empty())
-            for(const auto& other: environment().others)
+        L"<h2>All Environment Parameters</h2>";
+        if(!environment().parameters.empty())
+            for(const auto& other: environment().parameters)
                 out << L"<b>" << Encoding::HTML << other.first << Encoding::NONE
                     << L":</b> " << Encoding::HTML << other.second
                     << Encoding::NONE << L"<br />";
