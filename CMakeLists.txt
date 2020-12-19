@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(fastcgilite VERSION 3.1 LANGUAGES CXX)
+project(fastcgilite VERSION 3.9 LANGUAGES CXX)
 
 string(TIMESTAMP BUILD_TIME UTC)
 
