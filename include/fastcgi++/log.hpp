@@ -35,6 +35,8 @@
 #include <mutex>
 #include <cstdlib>
 #include <string>
+#include <functional>
+#include <sstream>
 
 //! Topmost namespace for the fastcgi++ library
 namespace Fastcgipp
@@ -57,6 +59,9 @@ namespace Fastcgipp
         //! Set to true if you want to suppress non-error logs
         extern bool suppress;
 
+        //! Set to true to use a systemd-like log header/prefix
+        extern bool addHeader;
+
         //! Communicate the log level to the header generator
         enum Level
         {
@@ -68,19 +73,21 @@ namespace Fastcgipp
             DIAG = 5,
         };
 
+        //! Function writing a message (of a specific log level) to the log, can be replaced for external logging
+        extern std::function<void(const std::string &, Level)> logFunction;
+
         //! Send a log header to logstream
         void header(Level level);
     }
 }
 
 //! This is for the user to log whatever they want.
-#define INFO_LOG(data) {\
-    if(!::Fastcgipp::Logging::suppress)\
+#define INFO_LOG(data) \
     { \
-        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);\
-        ::Fastcgipp::Logging::header(::Fastcgipp::Logging::INFO);\
-        *::Fastcgipp::Logging::logstream << data << std::endl;\
-    }}
+        std::ostringstream ds;\
+        ds << data;\
+        ::Fastcgipp::Logging::logFunction(ds.str(), ::Fastcgipp::Logging::INFO);\
+    }
 
 //! Log any "errors" that cannot be recovered from and then exit.
 /*!
@@ -88,14 +95,13 @@ namespace Fastcgipp
  * what the external conditions are. This also presumes that there is no
  * possibility to recover from the error and we should simply terminate.
  */
-#define FAIL_LOG(data) {\
-    if(!::Fastcgipp::Logging::suppress)\
+#define FAIL_LOG(data) \
     { \
-        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);\
-        ::Fastcgipp::Logging::header(::Fastcgipp::Logging::FAIL);\
-        *::Fastcgipp::Logging::logstream << data << std::endl;\
+        std::ostringstream ds;\
+        ds << data;\
+        ::Fastcgipp::Logging::logFunction(ds.str(), ::Fastcgipp::Logging::FAIL);\
         std::exit(EXIT_FAILURE);\
-    }}
+    }
 
 #if FASTCGIPP_LOG_LEVEL > 0
 //! Log any "errors" that can be recovered from.
@@ -106,9 +112,9 @@ namespace Fastcgipp
  */
 #define ERROR_LOG(data) \
     { \
-        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);\
-        ::Fastcgipp::Logging::header(::Fastcgipp::Logging::ERROR);\
-        *::Fastcgipp::Logging::logstream << data << std::endl;\
+        std::ostringstream ds;\
+        ds << data;\
+        ::Fastcgipp::Logging::logFunction(ds.str(), ::Fastcgipp::Logging::ERROR);\
     }
 #else
 #define ERROR_LOG(data) {}
@@ -121,39 +127,36 @@ namespace Fastcgipp
  * like bad data from a web server. Once can't say that these errors should
  * never happen since they are external controlled.
  */
-#define WARNING_LOG(data) {\
-    if(!::Fastcgipp::Logging::suppress)\
+#define WARNING_LOG(data) \
     { \
-        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);\
-        ::Fastcgipp::Logging::header(::Fastcgipp::Logging::WARNING);\
-        *::Fastcgipp::Logging::logstream << data << std::endl;\
-    }}
+        std::ostringstream ds;\
+        ds << data;\
+        ::Fastcgipp::Logging::logFunction(ds.str(), ::Fastcgipp::Logging::WARNING);\
+    }
 #else
 #define WARNING_LOG(data) {}
 #endif
 
 #if FASTCGIPP_LOG_LEVEL > 2
 //! The intention here is for general debug/analysis logging
-#define DEBUG_LOG(data) {\
-    if(!::Fastcgipp::Logging::suppress)\
+#define DEBUG_LOG(data) \
     { \
-        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);\
-        ::Fastcgipp::Logging::header(::Fastcgipp::Logging::DEBUG);\
-        *::Fastcgipp::Logging::logstream << data << std::endl;\
-    }}
+        std::ostringstream ds;\
+        ds << data;\
+        ::Fastcgipp::Logging::logFunction(ds.str(), ::Fastcgipp::Logging::DEBUG);\
+    }
 #else
 #define DEBUG_LOG(data) {}
 #endif
 
 #if FASTCGIPP_LOG_LEVEL > 3
 //! The intention here is for internal library debug/analysis logging
-#define DIAG_LOG(data) {\
-    if(!::Fastcgipp::Logging::suppress)\
+#define DIAG_LOG(data) \
     { \
-        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);\
-        ::Fastcgipp::Logging::header(::Fastcgipp::Logging::DIAG);\
-        *::Fastcgipp::Logging::logstream << data << std::endl;\
-    }}
+        std::ostringstream ds;\
+        ds << data;\
+        ::Fastcgipp::Logging::logFunction(ds.str(), ::Fastcgipp::Logging::DIAG);\
+    }
 #else
 #define DIAG_LOG(data) {}
 #endif

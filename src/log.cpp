@@ -83,8 +83,20 @@ namespace Fastcgipp
 std::ostream* Fastcgipp::Logging::logstream(&std::cerr);
 std::mutex Fastcgipp::Logging::mutex;
 bool Fastcgipp::Logging::suppress(false);
+bool Fastcgipp::Logging::addHeader(false);
 std::string Fastcgipp::Logging::hostname(Fastcgipp::Logging::getHostname());
 std::string Fastcgipp::Logging::program(Fastcgipp::Logging::getProgram());
+
+std::function<void(const std::string &, Fastcgipp::Logging::Level)> Fastcgipp::Logging::logFunction =
+        [](const std::string &msg, Fastcgipp::Logging::Level level) {
+    if (!suppress || level == Level::ERROR) {
+        std::lock_guard<std::mutex> lock(::Fastcgipp::Logging::mutex);
+        if (addHeader) {
+            header(level);
+        }
+        *logstream << msg << std::endl;
+    }
+};
 
 void Fastcgipp::Logging::header(Level level)
 {
