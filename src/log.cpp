@@ -46,68 +46,50 @@ namespace Fastcgipp
     //! Contains the Fastcgipp debugging/logging mechanism
     namespace Logging
     {
-        std::wstring getHostname()
+        std::string getHostname()
         {
             char buffer[HOST_NAME_MAX+2];
             gethostname(buffer, sizeof(buffer));
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-            try
-            {
-                return(converter.from_bytes(
-                            buffer,
-                            buffer+std::strlen(buffer)));
-            }
-            catch(const std::range_error& e)
-            {
-                WARNING_LOG("Error in hostname code conversion from utf8")
-                return std::wstring(L"localhost");
-            }
+            return(std::string(
+                    buffer,
+                    buffer+std::strlen(buffer)));
 
         }
 
-        std::wstring getProgram()
+        std::string getProgram()
         {
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-            std::wostringstream ss;
-            try
-            {
-                ss << converter.from_bytes(
-                        program_invocation_short_name,
-                        program_invocation_short_name
-                            +std::strlen(program_invocation_short_name));
-            }
-            catch(const std::range_error& e)
-            {
-                WARNING_LOG("Error in program name code conversion from utf8")
-                ss << "unknown";
-            }
+            std::ostringstream ss;
+            ss << std::string(
+                    program_invocation_short_name,
+                    program_invocation_short_name
+                    +std::strlen(program_invocation_short_name));
 
             ss << '[' << getpid() << ']';
             return ss.str();
         }
 
-        std::array<std::wstring, 6> levels
+        std::array<std::string, 6> levels
         {{
-            L"[info] ",
-            L"[fail] ",
-            L"[error] ",
-            L"[warning] ",
-            L"[debug] ",
-            L"[diagnostic] "
+            "[info] ",
+            "[fail] ",
+            "[error] ",
+            "[warning] ",
+            "[debug] ",
+            "[diagnostic] "
         }};
     }
 }
 
-std::wostream* Fastcgipp::Logging::logstream(&std::wcerr);
+std::ostream* Fastcgipp::Logging::logstream(&std::cerr);
 std::mutex Fastcgipp::Logging::mutex;
 bool Fastcgipp::Logging::suppress(false);
-std::wstring Fastcgipp::Logging::hostname(Fastcgipp::Logging::getHostname());
-std::wstring Fastcgipp::Logging::program(Fastcgipp::Logging::getProgram());
+std::string Fastcgipp::Logging::hostname(Fastcgipp::Logging::getHostname());
+std::string Fastcgipp::Logging::program(Fastcgipp::Logging::getProgram());
 
 void Fastcgipp::Logging::header(Level level)
 {
     const std::time_t now = std::time(nullptr);
     *logstream
-        << std::put_time(std::localtime(&now), L"%b %d %H:%M:%S ")
+        << std::put_time(std::localtime(&now), "%b %d %H:%M:%S ")
         << hostname << ' ' << program << ": [fastcgi] " << levels[level];
 }

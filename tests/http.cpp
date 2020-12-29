@@ -314,7 +314,7 @@ int main()
                         string.begin(),
                         end))
                 FAIL_LOG("Fastcgipp::Http::base64Encode() with data1. Got \"" \
-                        << std::wstring(string.begin(), end) << "\"")
+                        << std::string(string.begin(), end) << "\"")
 
             end = Fastcgipp::Http::base64Encode(
                     data2,
@@ -327,7 +327,7 @@ int main()
                         string.begin(),
                         end))
                 FAIL_LOG("Fastcgipp::Http::base64Encode() with data2. Got \"" \
-                        << std::wstring(string.begin(), end) << "\"")
+                        << std::string(string.begin(), end) << "\"")
 
             end = Fastcgipp::Http::base64Encode(
                     data3,
@@ -340,7 +340,7 @@ int main()
                         string.begin(),
                         end))
                 FAIL_LOG("Fastcgipp::Http::base64Encode() with data3. Got \"" \
-                        << std::wstring(string.begin(), end) << "\"")
+                        << std::string(string.begin(), end) << "\"")
         }
 
         std::array<unsigned char, 1024> data;

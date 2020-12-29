@@ -43,16 +43,16 @@ namespace Fastcgipp
     namespace Logging
     {
         //! The actual stream we will be logging to.
-        extern std::wostream* logstream;
+        extern std::ostream* logstream;
 
         //! Thread safe the logging mechanism
         extern std::mutex mutex;
 
         //! Hostname to use in logging
-        extern std::wstring hostname;
+        extern std::string hostname;
 
         //! Application name to use in loggin
-        extern std::wstring program;
+        extern std::string program;
 
         //! Set to true if you want to suppress non-error logs
         extern bool suppress;

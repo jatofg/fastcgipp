@@ -152,7 +152,7 @@ template<class charT> void Fastcgipp::Address::assign(
     {
         m_data.fill(0);
         WARNING_LOG("Error converting IPv6 address " \
-                << std::wstring(start, end))
+                << std::string(start, end))
     }
     else if(pad != m_data.end())
     {

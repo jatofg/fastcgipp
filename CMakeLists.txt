@@ -28,7 +28,6 @@ set(TESTS
 set(EXAMPLES
         "helloworld"
         "echo"
-        "gnu"
         "timer")
 
 # Set up our log level for fastcgi++/log.hpp
