@@ -33,6 +33,7 @@
 #include "fastcgi++/fcgistreambuf.hpp"
 #include "fastcgi++/http.hpp"
 
+#include <optional>
 #include <ostream>
 #include <functional>
 #include <queue>

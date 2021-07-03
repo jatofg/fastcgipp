@@ -41,14 +41,17 @@
 #include <sys/types.h>
 
 //! Topmost namespace for the fastcgi++ library
-namespace Fastcgipp
-{
-    //! Contains the Fastcgipp debugging/logging mechanism
-    namespace Logging
+namespace Fastcgipp::Logging
     {
         std::string getHostname()
         {
+#ifdef HOST_NAME_MAX
             char buffer[HOST_NAME_MAX+2];
+#elif _POSIX_HOST_NAME_MAX
+            char buffer[_POSIX_HOST_NAME_MAX+2];
+#else
+            char buffer[257];
+#endif
             gethostname(buffer, sizeof(buffer));
             return(std::string(
                     buffer,
@@ -59,11 +62,14 @@ namespace Fastcgipp
         std::string getProgram()
         {
             std::ostringstream ss;
+#ifdef FASTCGIPP_LINUX
             ss << std::string(
                     program_invocation_short_name,
                     program_invocation_short_name
                     +std::strlen(program_invocation_short_name));
-
+#else
+            ss << std::string(getprogname());
+#endif
             ss << '[' << getpid() << ']';
             return ss.str();
         }
@@ -78,7 +84,6 @@ namespace Fastcgipp
             "[diagnostic] "
         }};
     }
-}
 
 std::ostream* Fastcgipp::Logging::logstream(&std::cerr);
 std::mutex Fastcgipp::Logging::mutex;

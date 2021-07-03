@@ -50,7 +50,7 @@ const unsigned Fastcgipp::Poll::Result::pollRdHup = EPOLLRDHUP;
 const unsigned Fastcgipp::Poll::Result::pollIn = POLLIN;
 const unsigned Fastcgipp::Poll::Result::pollErr = POLLERR;
 const unsigned Fastcgipp::Poll::Result::pollHup = POLLHUP;
-const unsigned Fastcgipp::Poll::Result::pollRdHup = POLLRDHUP;
+const unsigned Fastcgipp::Poll::Result::pollRdHup = 0x2000;
 #endif
 
 Fastcgipp::Poll::Poll()
@@ -131,7 +131,7 @@ bool Fastcgipp::Poll::add(const socket_t socket)
 
     m_poll.emplace_back();
     m_poll.back().fd = socket;
-    m_poll.back().events = POLLIN | POLLRDHUP | POLLERR | POLLHUP;
+    m_poll.back().events = POLLIN | 0x2000 | POLLERR | POLLHUP;
     return true;
 #endif
 }
